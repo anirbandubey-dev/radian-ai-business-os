@@ -1,0 +1,11 @@
+"""create accounts and contacts"""
+from alembic import op
+import sqlalchemy as sa
+revision="0003_accounts_contacts"; down_revision="0002_clerk_identity"; branch_labels=None; depends_on=None
+def upgrade():
+    op.create_table("accounts", sa.Column("id",sa.Uuid(),primary_key=True),sa.Column("organization_id",sa.Uuid(),sa.ForeignKey("organizations.id",ondelete="CASCADE"),nullable=False),sa.Column("name",sa.String(200),nullable=False),sa.Column("account_type",sa.String(80),nullable=False),sa.Column("industry",sa.String(120)),sa.Column("website",sa.String(255)),sa.Column("phone",sa.String(40)),sa.Column("email",sa.String(320)),sa.Column("address",sa.String(255)),sa.Column("city",sa.String(120)),sa.Column("state",sa.String(120)),sa.Column("country",sa.String(120)),sa.Column("postal_code",sa.String(30)),sa.Column("description",sa.Text),sa.Column("owner_id",sa.Uuid(),sa.ForeignKey("users.id",ondelete="SET NULL")),sa.Column("status",sa.String(40),nullable=False),sa.Column("created_at",sa.DateTime(),nullable=False),sa.Column("updated_at",sa.DateTime(),nullable=False))
+    op.create_index("ix_accounts_org_name","accounts",["organization_id","name"])
+    op.create_table("contacts", sa.Column("id",sa.Uuid(),primary_key=True),sa.Column("organization_id",sa.Uuid(),sa.ForeignKey("organizations.id",ondelete="CASCADE"),nullable=False),sa.Column("account_id",sa.Uuid(),sa.ForeignKey("accounts.id",ondelete="SET NULL")),sa.Column("first_name",sa.String(100),nullable=False),sa.Column("last_name",sa.String(100),nullable=False),sa.Column("full_name",sa.String(205),nullable=False),sa.Column("email",sa.String(320)),sa.Column("phone",sa.String(40)),sa.Column("job_title",sa.String(120)),sa.Column("department",sa.String(120)),sa.Column("status",sa.String(40),nullable=False),sa.Column("owner_id",sa.Uuid(),sa.ForeignKey("users.id",ondelete="SET NULL")),sa.Column("notes",sa.Text),sa.Column("created_at",sa.DateTime(),nullable=False),sa.Column("updated_at",sa.DateTime(),nullable=False))
+    op.create_index("ix_contacts_org_account","contacts",["organization_id","account_id"])
+def downgrade():
+    op.drop_index("ix_contacts_org_account",table_name="contacts"); op.drop_table("contacts"); op.drop_index("ix_accounts_org_name",table_name="accounts"); op.drop_table("accounts")
